@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en" manifest="match.appcache">
+    <head>
+        <title>Matchlachi!</title>
+        <meta name="description" content="Match! &mdash; the lovely little pattern-finding game.">
+        <meta name="og:description" content="Match! &mdash; the lovely little pattern-finding game.">
+
+        <meta name="viewport" content="width=275,user-scalable=no">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+        <meta name="og:title" content="Matchlachi">
+
+        <link rel="icon" href="icon.png">
+        <link rel="apple-touch-icon-precomposed" href="icon.png" />
+        <meta name="og:image" content="icon.png">
+
+        <meta name="og:url" content="http://benb.in/p/match/">
+
+        <style type="text/css">
+/* =reset */
+html,
+body,
+div,
+ul,
+li {
+  margin: 0;
+  padding: 0;
+}
+/* =base */
+.cf:before,
+.cf:after {
+  content: " ";
+  display: table;
+}
+.cf:after {
+  clear: both;
+}
+/*.cf {
+  *zoom: 1;
+}
+*/
+/* =styles */
+body {
+  font: 300 14px "Helvetica Neue", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica", "Arial";
+  min-height: 100%;
+
+  --color-one: #f36;
+  --color-two: #3c6;
+  --color-three: #909;
+  --bg-one: #fff;
+  --bg-two: #ccc;
+  --bg-three: #333;
+
+  --color-one: #C86A6F;
+  --color-two: #2188C0;
+  --color-three: #09BC8A;
+  --bg-one: #fff;
+  --bg-two: #e7e7e8;
+  --bg-three: #465362;
+}
+
+ul {
+  margin-left: 1.1em;
+}
+.page-wrapper {
+  position: relative;
+  width: 248px;
+  margin: 0 auto;
+}
+header {
+  margin-top: 1em;
+}
+h1 {
+  text-align: center;
+  font-size: 3em;
+  padding: 0 1em;
+}
+.subhead {
+  font-style: italic;
+  text-align: center;
+}
+/* =board */
+.board .tally {
+  float: right;
+}
+.board .timer {
+  float: left;
+}
+.board .body {
+  clear: both;
+}
+.board .notifications {
+  -webkit-transition: padding-top 0.25s ease-in-out;
+  -moz-transition: padding-top 0.25s ease-in-out;
+  -o-transition: padding-top 0.25s ease-in-out;
+  -ms-transition: padding-top 0.25s ease-in-out;
+  transition: padding-top 0.25s ease-in-out;
+  text-align: center;
+}
+/* =board-tiles */
+.items {
+  margin: 0;
+}
+.items .slot {
+  list-style: none;
+  display: inline-block;
+  margin: 0;
+  padding: 12px 0;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  width: 32%;
+  text-align: center;
+}
+.board .items .slot {
+  width: 33.33333%;
+}
+.items .item {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 1px 3px #bbb;
+  box-shadow: 0 1px 3px #bbb;
+}
+.items .item i {
+  display: inline-block;
+  height: 30px;
+  width: 30px;
+  margin: 10px;
+  border: 0 solid var(--bg-one);
+}
+.items .solid {
+  background-color: var(--bg-three);
+}
+.items .outlined {
+  background-color: var(--bg-one);
+}
+.items .semi-solid {
+  background-color: var(--bg-two);
+}
+.items i {
+  border-color: transparent;
+}
+.items .red i {
+  background-color: var(--color-one);
+  border-bottom-color: var(--color-one);
+}
+.items .orange i {
+  background-color: var(--color-one);
+  border-bottom-color: var(--color-one);
+}
+.items .purple i {
+  background-color: var(--color-three);
+  border-bottom-color: var(--color-three);
+}
+.items .blue i {
+  background-color: var(--color-three);
+  border-bottom-color: var(--color-three);
+}
+.items .green i {
+  background-color: var(--color-two);
+  border-bottom-color: var(--color-two);
+}
+.items .triangle i {
+  width: 0;
+  height: 0;
+  border-width: 15px;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-top-width: 0;
+  margin: 17.5px 10px;
+  background: transparent;
+}
+.items .circle i {
+  -webkit-border-radius: 15px;
+  border-radius: 15px;
+}
+.items .selected {
+  -webkit-transform: scale(1.15, 1.15);
+  -moz-transform: scale(1.15, 1.15);
+  -o-transform: scale(1.15, 1.15);
+  -ms-transform: scale(1.15, 1.15);
+  transform: scale(1.15, 1.15);
+  -webkit-box-shadow: 0 3px 7px #666;
+  box-shadow: 0 3px 7px #666;
+}
+.board .finale {
+  height: 100%;
+}
+.board .finale {
+  position: absolute;
+  top: 0;
+  padding: 5em 2em;
+  background-color: #fff;
+  background-color: rgba(255,255,255,0.95);
+}
+.board .finale .button {
+  background-color: #fff;
+}
+/* =base-ui */
+.button {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  padding: 0.5em;
+  min-width: 4em;
+  border: 1px solid #ddd;
+  color: #333;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+.button:active {
+  background-color: #ddd;
+}
+.page {
+  position: absolute;
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+  height: 0;
+  overflow: hidden;
+  -webkit-transition: opacity 0.25s;
+  -moz-transition: opacity 0.25s;
+  -o-transition: opacity 0.25s;
+  -ms-transition: opacity 0.25s;
+  transition: opacity 0.25s;
+  z-index: 1;
+  width: 100%;
+  margin-bottom: 4em;
+}
+.active-page {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  height: auto;
+  overflow: visible;
+  z-index: 10;
+}
+header nav .button {
+  display: inline-block;
+}
+header nav .button:last-child {
+  float: right;
+}
+.home-menu {
+  text-align: center;
+}
+.ipad .instructions p,
+.iphone .instructions p {
+  margin: 1em;
+}
+.iphone-install,
+.ipad-install {
+  display: none;
+}
+.iphone .iphone-install,
+.ipad .ipad-install {
+  display: block;
+}
+.iphone .instructions {
+  font-size: 13px;
+  margin-top: 2em;
+  position: fixed;
+  text-align: center;
+  bottom: 10px;
+  width: 70%;
+  left: 15%;
+  background: #fff;
+  -webkit-box-shadow: 0 1px 2px #ccc;
+  box-shadow: 0 1px 2px #ccc;
+}
+.iphone .instructions:after,
+.iphone .instructions:before {
+  top: 100%;
+  border: 10px solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  left: 50%;
+}
+.iphone .instructions:after {
+  border-top-color: #fff;
+  margin: -1px 0 0 -10px;
+}
+.iphone .instructions:before {
+  border-top-color: #ddd;
+  border-width: 10px 11px 11px;
+  margin-left: -11px;
+}
+/* Transforms for  claimed elements */
+.item {
+  opacity: 1;
+  -ms-filter: none;
+  filter: none;
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  -ms-transition: all 0.2s;
+  transition: all 0.2s;
+}
+.claimed {
+  opacity: 0;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+  filter: alpha(opacity=0);
+}
+.slot:nth-child(1) .claimed {
+  -webkit-transform: translate(300%, -100%);
+  -moz-transform: translate(300%, -100%);
+  -o-transform: translate(300%, -100%);
+  -ms-transform: translate(300%, -100%);
+  transform: translate(300%, -100%);
+}
+.slot:nth-child(2) .claimed {
+  -webkit-transform: translate(150%, -100%);
+  -moz-transform: translate(150%, -100%);
+  -o-transform: translate(150%, -100%);
+  -ms-transform: translate(150%, -100%);
+  transform: translate(150%, -100%);
+}
+.slot:nth-child(3) .claimed {
+  -webkit-transform: translate(0%, -100%);
+  -moz-transform: translate(0%, -100%);
+  -o-transform: translate(0%, -100%);
+  -ms-transform: translate(0%, -100%);
+  transform: translate(0%, -100%);
+}
+.slot:nth-child(4) .claimed {
+  -webkit-transform: translate(300%, -300%);
+  -moz-transform: translate(300%, -300%);
+  -o-transform: translate(300%, -300%);
+  -ms-transform: translate(300%, -300%);
+  transform: translate(300%, -300%);
+}
+.slot:nth-child(5) .claimed {
+  -webkit-transform: translate(150%, -300%);
+  -moz-transform: translate(150%, -300%);
+  -o-transform: translate(150%, -300%);
+  -ms-transform: translate(150%, -300%);
+  transform: translate(150%, -300%);
+}
+.slot:nth-child(6) .claimed {
+  -webkit-transform: translate(0%, -300%);
+  -moz-transform: translate(0%, -300%);
+  -o-transform: translate(0%, -300%);
+  -ms-transform: translate(0%, -300%);
+  transform: translate(0%, -300%);
+}
+.slot:nth-child(7) .claimed {
+  -webkit-transform: translate(300%, -450%);
+  -moz-transform: translate(300%, -450%);
+  -o-transform: translate(300%, -450%);
+  -ms-transform: translate(300%, -450%);
+  transform: translate(300%, -450%);
+}
+.slot:nth-child(8) .claimed {
+  -webkit-transform: translate(150%, -450%);
+  -moz-transform: translate(150%, -450%);
+  -o-transform: translate(150%, -450%);
+  -ms-transform: translate(150%, -450%);
+  transform: translate(150%, -450%);
+}
+.slot:nth-child(9) .claimed {
+  -webkit-transform: translate(0%, -450%);
+  -moz-transform: translate(0%, -450%);
+  -o-transform: translate(0%, -450%);
+  -ms-transform: translate(0%, -450%);
+  transform: translate(0%, -450%);
+}
+@media screen and (orientation: landscape) {
+  .iphone .instructions {
+    position: relative;
+  }
+}
+
+
+        </style>
+
+    </head>
+    <body class="theme-malachi">
+        <div class="page-wrapper">
+            <article id="install-page" class="page">
+  <h1>Match!</h1>
+  <p class="subhead">&mdash;the lovely little pattern-finding game.</p>
+
+  <section class="instructions">
+    <p>Match! is an offline-capable web application.</p>
+    <p class="iphone-install">To install on your iPhone, tap the Share button below, then "Add to Home Screen".</p>
+    <p class="ipad-install">To install on your iPad, tap the Share button above, then "Add to Home Screen".</p>
+  </section>
+</article>
+
+<article id="home-page" class="page">
+  <header>
+    <h1>Match!</h1>
+    <p class="subhead">&mdash;the lovely little pattern-finding game.</p>
+  </header>
+  <nav class="home-menu">
+    <a class="button" href="#rules-page">Rules</a>
+    <a class="button" href="#play-page">Play</a>
+  </nav>
+</article>
+
+<article id="rules-page" class="page">
+
+  <header>
+     <nav class="cf">
+       <a href="#home-page" class="button">Home</a>
+       <a href="#play-page" class="button">Play</a>
+     </nav>
+     <h2>How to play Match!</h2>
+  </header>
+
+  <section id="goal">    
+      <p>The goal of <em>Match!</em> is to find ten matches as quickly as you can.</p>
+  </section>
+
+  <section>
+      <h3>What is a match?</h3>
+      <p>A match is three tiles where each trait is either the <strong>same</strong> or <strong>different</strong> for each tile.</p>
+  </section>
+
+  <section id="traits">
+      <h3>What are traits?</h3>
+      <ul>
+        <li><strong>Shape</strong>: circle, triangle or square</li>
+        <li><strong>Shape color</strong>: red, blue or green</li>
+        <li><strong>Tile color</strong>: white, grey or black</li>
+      </ul>
+  </section>
+
+  <section id="examples">
+      <h3>Examples</h3>
+      <p>This is a match:</p>
+      <ul class="items">
+        <li class="slot"><span class="item green semi-solid circle"><i></i></span></li>
+        <li class="slot"><span class="item green outlined circle"><i></i></span></li>
+        <li class="slot"><span class="item green solid circle"><i></i></span></li>
+      </ul>
+      <ul>
+        <li>All <strong>shapes</strong> are the <em>same</em>.</li>
+        <li>All <strong>shape colors</strong> are the <em>same</em>.</li>
+        <li>All <strong>tile colors</strong> are <em>different</em>.</li>
+      </ul>
+      <p>This is also a match:</p>
+      <ul class="items">
+        <li class="slot"><span class="item green semi-solid circle"><i></i></span></li>
+        <li class="slot"><span class="item red semi-solid square"><i></i></span></li>
+        <li class="slot"><span class="item blue semi-solid triangle"><i></i></span></li>
+      </ul>
+      <ul>
+        <li>All <strong>shapes</strong> are <em>different</em>.</li>
+        <li>All <strong>shape colors</strong> are <em>different</em>.</li>
+        <li>All <strong>tile colors</strong> are the <em>same</em>.</li>
+      </ul>
+      <p>Finally, this is also a match:</p>
+      <ul class="items">
+        <li class="slot"><span class="item green semi-solid circle"><i></i></span></li>
+        <li class="slot"><span class="item red solid square"><i></i></span></li>
+        <li class="slot"><span class="item blue outlined triangle"><i></i></span></li>
+      </ul>
+      <ul>
+        <li>All <strong>shapes</strong> are <em>different</em>.</li>
+        <li>All <strong>shape colors</strong> are <em>different</em>.</li>
+        <li>All <strong>tile colors</strong> are <em>different</em>.</li>
+      </ul>
+      <p>Don't worry if this seems confusing&mdash;identifying matches sounds more difficult than it actually is. Try it and I bet you'll get the hang of it quickly.</p>
+  </section>
+
+  <section id="gameplay">
+    <h2>Gameplay</h2>
+    <p>Nine tiles are laid out at the beginning of the game. Tap/click/select three tiles that make a match. If the tiles you select are a match, your tally of matches found will go up by one and the tiles will be replaced with three new ones.</p>
+    <p>Keep finding matches as quickly as you can. The game is over when you find your tenth match.</p>
+  </section>
+
+  <section id="about">
+    <h2>About</h2>
+    <p>The principles of Match! are based on the card game SET&reg;, which is a wonderfully creative card game from SET&reg; Enterprises, Inc. If you like Match!, you'd probably really love SET&reg;. <a href="http://www.amazon.com/gp/product/B00000IV34/ref=as_li_ss_tl?ie=UTF8&camp=1789&creative=390957&creativeASIN=B00000IV34&linkCode=as2&tag=mat033-20">Buy SET&reg; on Amazon</a> with that affiliate link, and  I'll get something like a penny. We all win!</p>
+    <p>SET&reg; is a registered trademark of SET&reg; Enterprises, Inc., and Match! is not affiliated with them in any way.</p>
+    <p>By the way, my name is Ben and I'm a web developer living in Lincoln, NE. I'm <a href="http://twitter.com/barberboy">@barberboy</a> on Twitter, and I occasionally write stuff on my personal website, <a href="http://bpb.im">bpb.im</a>.</p>
+    <p>I hope you enjoy playing Match! Let me know if you have any questions or ideas to make it better.</p>
+    <p>With so much love, <br><br><em>Ben</em></p>
+  </section>
+</article>
+
+<article id="play-page" class="page">
+  <header>
+    <nav class="cf">
+      <a href="#home-page" class="button">Home</a>
+      <a href="#play-page" class="button">New Game</a>
+    </nav>
+  </header>
+  <section class="board">
+    <header>
+      <div class="tally"><span class="found">0</span> of <span class="total">0</span></div>
+      <div class="timer">0</div>
+    </header>
+    <div class="body">
+      <ul class="items">
+      </ul>
+    </div>
+    <footer>
+      <p class="notifications"></p>
+    </footer>
+  </section>
+</article>
+
+
+
+        </div>
+        <script type="text/javascript">/* Zepto v1.0-3-g342d490 - polyfill zepto event touch - zeptojs.com/license */
+(function(a){String.prototype.trim===a&&(String.prototype.trim=function(){return this.replace(/^\s+|\s+$/g,"")}),Array.prototype.reduce===a&&(Array.prototype.reduce=function(b){if(this===void 0||this===null)throw new TypeError;var c=Object(this),d=c.length>>>0,e=0,f;if(typeof b!="function")throw new TypeError;if(d==0&&arguments.length==1)throw new TypeError;if(arguments.length>=2)f=arguments[1];else do{if(e in c){f=c[e++];break}if(++e>=d)throw new TypeError}while(!0);while(e<d)e in c&&(f=b.call(a,f,c[e],e,c)),e++;return f})})();var Zepto=function(){function E(a){return a==null?String(a):y[z.call(a)]||"object"}function F(a){return E(a)=="function"}function G(a){return a!=null&&a==a.window}function H(a){return a!=null&&a.nodeType==a.DOCUMENT_NODE}function I(a){return E(a)=="object"}function J(a){return I(a)&&!G(a)&&a.__proto__==Object.prototype}function K(a){return a instanceof Array}function L(a){return typeof a.length=="number"}function M(a){return g.call(a,function(a){return a!=null})}function N(a){return a.length>0?c.fn.concat.apply([],a):a}function O(a){return a.replace(/::/g,"/").replace(/([A-Z]+)([A-Z][a-z])/g,"$1_$2").replace(/([a-z\d])([A-Z])/g,"$1_$2").replace(/_/g,"-").toLowerCase()}function P(a){return a in j?j[a]:j[a]=new RegExp("(^|\\s)"+a+"(\\s|$)")}function Q(a,b){return typeof b=="number"&&!l[O(a)]?b+"px":b}function R(a){var b,c;return i[a]||(b=h.createElement(a),h.body.appendChild(b),c=k(b,"").getPropertyValue("display"),b.parentNode.removeChild(b),c=="none"&&(c="block"),i[a]=c),i[a]}function S(a){return"children"in a?f.call(a.children):c.map(a.childNodes,function(a){if(a.nodeType==1)return a})}function T(c,d,e){for(b in d)e&&(J(d[b])||K(d[b]))?(J(d[b])&&!J(c[b])&&(c[b]={}),K(d[b])&&!K(c[b])&&(c[b]=[]),T(c[b],d[b],e)):d[b]!==a&&(c[b]=d[b])}function U(b,d){return d===a?c(b):c(b).filter(d)}function V(a,b,c,d){return F(b)?b.call(a,c,d):b}function W(a,b,c){c==null?a.removeAttribute(b):a.setAttribute(b,c)}function X(b,c){var d=b.className,e=d&&d.baseVal!==a;if(c===a)return e?d.baseVal:d;e?d.baseVal=c:b.className=c}function Y(a){var b;try{return a?a=="true"||(a=="false"?!1:a=="null"?null:isNaN(b=Number(a))?/^[\[\{]/.test(a)?c.parseJSON(a):a:b):a}catch(d){return a}}function Z(a,b){b(a);for(var c in a.childNodes)Z(a.childNodes[c],b)}var a,b,c,d,e=[],f=e.slice,g=e.filter,h=window.document,i={},j={},k=h.defaultView.getComputedStyle,l={"column-count":1,columns:1,"font-weight":1,"line-height":1,opacity:1,"z-index":1,zoom:1},m=/^\s*<(\w+|!)[^>]*>/,n=/<(?!area|br|col|embed|hr|img|input|link|meta|param)(([\w:]+)[^>]*)\/>/ig,o=/^(?:body|html)$/i,p=["val","css","html","text","data","width","height","offset"],q=["after","prepend","before","append"],r=h.createElement("table"),s=h.createElement("tr"),t={tr:h.createElement("tbody"),tbody:r,thead:r,tfoot:r,td:s,th:s,"*":h.createElement("div")},u=/complete|loaded|interactive/,v=/^\.([\w-]+)$/,w=/^#([\w-]*)$/,x=/^[\w-]+$/,y={},z=y.toString,A={},B,C,D=h.createElement("div");return A.matches=function(a,b){if(!a||a.nodeType!==1)return!1;var c=a.webkitMatchesSelector||a.mozMatchesSelector||a.oMatchesSelector||a.matchesSelector;if(c)return c.call(a,b);var d,e=a.parentNode,f=!e;return f&&(e=D).appendChild(a),d=~A.qsa(e,b).indexOf(a),f&&D.removeChild(a),d},B=function(a){return a.replace(/-+(.)?/g,function(a,b){return b?b.toUpperCase():""})},C=function(a){return g.call(a,function(b,c){return a.indexOf(b)==c})},A.fragment=function(b,d,e){b.replace&&(b=b.replace(n,"<$1></$2>")),d===a&&(d=m.test(b)&&RegExp.$1),d in t||(d="*");var g,h,i=t[d];return i.innerHTML=""+b,h=c.each(f.call(i.childNodes),function(){i.removeChild(this)}),J(e)&&(g=c(h),c.each(e,function(a,b){p.indexOf(a)>-1?g[a](b):g.attr(a,b)})),h},A.Z=function(a,b){return a=a||[],a.__proto__=c.fn,a.selector=b||"",a},A.isZ=function(a){return a instanceof A.Z},A.init=function(b,d){if(!b)return A.Z();if(F(b))return c(h).ready(b);if(A.isZ(b))return b;var e;if(K(b))e=M(b);else if(I(b))e=[J(b)?c.extend({},b):b],b=null;else if(m.test(b))e=A.fragment(b.trim(),RegExp.$1,d),b=null;else{if(d!==a)return c(d).find(b);e=A.qsa(h,b)}return A.Z(e,b)},c=function(a,b){return A.init(a,b)},c.extend=function(a){var b,c=f.call(arguments,1);return typeof a=="boolean"&&(b=a,a=c.shift()),c.forEach(function(c){T(a,c,b)}),a},A.qsa=function(a,b){var c;return H(a)&&w.test(b)?(c=a.getElementById(RegExp.$1))?[c]:[]:a.nodeType!==1&&a.nodeType!==9?[]:f.call(v.test(b)?a.getElementsByClassName(RegExp.$1):x.test(b)?a.getElementsByTagName(b):a.querySelectorAll(b))},c.contains=function(a,b){return a!==b&&a.contains(b)},c.type=E,c.isFunction=F,c.isWindow=G,c.isArray=K,c.isPlainObject=J,c.isEmptyObject=function(a){var b;for(b in a)return!1;return!0},c.inArray=function(a,b,c){return e.indexOf.call(b,a,c)},c.camelCase=B,c.trim=function(a){return a.trim()},c.uuid=0,c.support={},c.expr={},c.map=function(a,b){var c,d=[],e,f;if(L(a))for(e=0;e<a.length;e++)c=b(a[e],e),c!=null&&d.push(c);else for(f in a)c=b(a[f],f),c!=null&&d.push(c);return N(d)},c.each=function(a,b){var c,d;if(L(a)){for(c=0;c<a.length;c++)if(b.call(a[c],c,a[c])===!1)return a}else for(d in a)if(b.call(a[d],d,a[d])===!1)return a;return a},c.grep=function(a,b){return g.call(a,b)},window.JSON&&(c.parseJSON=JSON.parse),c.each("Boolean Number String Function Array Date RegExp Object Error".split(" "),function(a,b){y["[object "+b+"]"]=b.toLowerCase()}),c.fn={forEach:e.forEach,reduce:e.reduce,push:e.push,sort:e.sort,indexOf:e.indexOf,concat:e.concat,map:function(a){return c(c.map(this,function(b,c){return a.call(b,c,b)}))},slice:function(){return c(f.apply(this,arguments))},ready:function(a){return u.test(h.readyState)?a(c):h.addEventListener("DOMContentLoaded",function(){a(c)},!1),this},get:function(b){return b===a?f.call(this):this[b>=0?b:b+this.length]},toArray:function(){return this.get()},size:function(){return this.length},remove:function(){return this.each(function(){this.parentNode!=null&&this.parentNode.removeChild(this)})},each:function(a){return e.every.call(this,function(b,c){return a.call(b,c,b)!==!1}),this},filter:function(a){return F(a)?this.not(this.not(a)):c(g.call(this,function(b){return A.matches(b,a)}))},add:function(a,b){return c(C(this.concat(c(a,b))))},is:function(a){return this.length>0&&A.matches(this[0],a)},not:function(b){var d=[];if(F(b)&&b.call!==a)this.each(function(a){b.call(this,a)||d.push(this)});else{var e=typeof b=="string"?this.filter(b):L(b)&&F(b.item)?f.call(b):c(b);this.forEach(function(a){e.indexOf(a)<0&&d.push(a)})}return c(d)},has:function(a){return this.filter(function(){return I(a)?c.contains(this,a):c(this).find(a).size()})},eq:function(a){return a===-1?this.slice(a):this.slice(a,+a+1)},first:function(){var a=this[0];return a&&!I(a)?a:c(a)},last:function(){var a=this[this.length-1];return a&&!I(a)?a:c(a)},find:function(a){var b,d=this;return typeof a=="object"?b=c(a).filter(function(){var a=this;return e.some.call(d,function(b){return c.contains(b,a)})}):this.length==1?b=c(A.qsa(this[0],a)):b=this.map(function(){return A.qsa(this,a)}),b},closest:function(a,b){var d=this[0],e=!1;typeof a=="object"&&(e=c(a));while(d&&!(e?e.indexOf(d)>=0:A.matches(d,a)))d=d!==b&&!H(d)&&d.parentNode;return c(d)},parents:function(a){var b=[],d=this;while(d.length>0)d=c.map(d,function(a){if((a=a.parentNode)&&!H(a)&&b.indexOf(a)<0)return b.push(a),a});return U(b,a)},parent:function(a){return U(C(this.pluck("parentNode")),a)},children:function(a){return U(this.map(function(){return S(this)}),a)},contents:function(){return this.map(function(){return f.call(this.childNodes)})},siblings:function(a){return U(this.map(function(a,b){return g.call(S(b.parentNode),function(a){return a!==b})}),a)},empty:function(){return this.each(function(){this.innerHTML=""})},pluck:function(a){return c.map(this,function(b){return b[a]})},show:function(){return this.each(function(){this.style.display=="none"&&(this.style.display=null),k(this,"").getPropertyValue("display")=="none"&&(this.style.display=R(this.nodeName))})},replaceWith:function(a){return this.before(a).remove()},wrap:function(a){var b=F(a);if(this[0]&&!b)var d=c(a).get(0),e=d.parentNode||this.length>1;return this.each(function(f){c(this).wrapAll(b?a.call(this,f):e?d.cloneNode(!0):d)})},wrapAll:function(a){if(this[0]){c(this[0]).before(a=c(a));var b;while((b=a.children()).length)a=b.first();c(a).append(this)}return this},wrapInner:function(a){var b=F(a);return this.each(function(d){var e=c(this),f=e.contents(),g=b?a.call(this,d):a;f.length?f.wrapAll(g):e.append(g)})},unwrap:function(){return this.parent().each(function(){c(this).replaceWith(c(this).children())}),this},clone:function(){return this.map(function(){return this.cloneNode(!0)})},hide:function(){return this.css("display","none")},toggle:function(b){return this.each(function(){var d=c(this);(b===a?d.css("display")=="none":b)?d.show():d.hide()})},prev:function(a){return c(this.pluck("previousElementSibling")).filter(a||"*")},next:function(a){return c(this.pluck("nextElementSibling")).filter(a||"*")},html:function(b){return b===a?this.length>0?this[0].innerHTML:null:this.each(function(a){var d=this.innerHTML;c(this).empty().append(V(this,b,a,d))})},text:function(b){return b===a?this.length>0?this[0].textContent:null:this.each(function(){this.textContent=b})},attr:function(c,d){var e;return typeof c=="string"&&d===a?this.length==0||this[0].nodeType!==1?a:c=="value"&&this[0].nodeName=="INPUT"?this.val():!(e=this[0].getAttribute(c))&&c in this[0]?this[0][c]:e:this.each(function(a){if(this.nodeType!==1)return;if(I(c))for(b in c)W(this,b,c[b]);else W(this,c,V(this,d,a,this.getAttribute(c)))})},removeAttr:function(a){return this.each(function(){this.nodeType===1&&W(this,a)})},prop:function(b,c){return c===a?this[0]&&this[0][b]:this.each(function(a){this[b]=V(this,c,a,this[b])})},data:function(b,c){var d=this.attr("data-"+O(b),c);return d!==null?Y(d):a},val:function(b){return b===a?this[0]&&(this[0].multiple?c(this[0]).find("option").filter(function(a){return this.selected}).pluck("value"):this[0].value):this.each(function(a){this.value=V(this,b,a,this.value)})},offset:function(a){if(a)return this.each(function(b){var d=c(this),e=V(this,a,b,d.offset()),f=d.offsetParent().offset(),g={top:e.top-f.top,left:e.left-f.left};d.css("position")=="static"&&(g.position="relative"),d.css(g)});if(this.length==0)return null;var b=this[0].getBoundingClientRect();return{left:b.left+window.pageXOffset,top:b.top+window.pageYOffset,width:Math.round(b.width),height:Math.round(b.height)}},css:function(a,c){if(arguments.length<2&&typeof a=="string")return this[0]&&(this[0].style[B(a)]||k(this[0],"").getPropertyValue(a));var d="";if(E(a)=="string")!c&&c!==0?this.each(function(){this.style.removeProperty(O(a))}):d=O(a)+":"+Q(a,c);else for(b in a)!a[b]&&a[b]!==0?this.each(function(){this.style.removeProperty(O(b))}):d+=O(b)+":"+Q(b,a[b])+";";return this.each(function(){this.style.cssText+=";"+d})},index:function(a){return a?this.indexOf(c(a)[0]):this.parent().children().indexOf(this[0])},hasClass:function(a){return e.some.call(this,function(a){return this.test(X(a))},P(a))},addClass:function(a){return this.each(function(b){d=[];var e=X(this),f=V(this,a,b,e);f.split(/\s+/g).forEach(function(a){c(this).hasClass(a)||d.push(a)},this),d.length&&X(this,e+(e?" ":"")+d.join(" "))})},removeClass:function(b){return this.each(function(c){if(b===a)return X(this,"");d=X(this),V(this,b,c,d).split(/\s+/g).forEach(function(a){d=d.replace(P(a)," ")}),X(this,d.trim())})},toggleClass:function(b,d){return this.each(function(e){var f=c(this),g=V(this,b,e,X(this));g.split(/\s+/g).forEach(function(b){(d===a?!f.hasClass(b):d)?f.addClass(b):f.removeClass(b)})})},scrollTop:function(){if(!this.length)return;return"scrollTop"in this[0]?this[0].scrollTop:this[0].scrollY},position:function(){if(!this.length)return;var a=this[0],b=this.offsetParent(),d=this.offset(),e=o.test(b[0].nodeName)?{top:0,left:0}:b.offset();return d.top-=parseFloat(c(a).css("margin-top"))||0,d.left-=parseFloat(c(a).css("margin-left"))||0,e.top+=parseFloat(c(b[0]).css("border-top-width"))||0,e.left+=parseFloat(c(b[0]).css("border-left-width"))||0,{top:d.top-e.top,left:d.left-e.left}},offsetParent:function(){return this.map(function(){var a=this.offsetParent||h.body;while(a&&!o.test(a.nodeName)&&c(a).css("position")=="static")a=a.offsetParent;return a})}},c.fn.detach=c.fn.remove,["width","height"].forEach(function(b){c.fn[b]=function(d){var e,f=this[0],g=b.replace(/./,function(a){return a[0].toUpperCase()});return d===a?G(f)?f["inner"+g]:H(f)?f.documentElement["offset"+g]:(e=this.offset())&&e[b]:this.each(function(a){f=c(this),f.css(b,V(this,d,a,f[b]()))})}}),q.forEach(function(a,b){var d=b%2;c.fn[a]=function(){var a,e=c.map(arguments,function(b){return a=E(b),a=="object"||a=="array"||b==null?b:A.fragment(b)}),f,g=this.length>1;return e.length<1?this:this.each(function(a,h){f=d?h:h.parentNode,h=b==0?h.nextSibling:b==1?h.firstChild:b==2?h:null,e.forEach(function(a){if(g)a=a.cloneNode(!0);else if(!f)return c(a).remove();Z(f.insertBefore(a,h),function(a){a.nodeName!=null&&a.nodeName.toUpperCase()==="SCRIPT"&&(!a.type||a.type==="text/javascript")&&!a.src&&window.eval.call(window,a.innerHTML)})})})},c.fn[d?a+"To":"insert"+(b?"Before":"After")]=function(b){return c(b)[a](this),this}}),A.Z.prototype=c.fn,A.uniq=C,A.deserializeValue=Y,c.zepto=A,c}();window.Zepto=Zepto,"$"in window||(window.$=Zepto),function(a){function g(a){return a._zid||(a._zid=d++)}function h(a,b,d,e){b=i(b);if(b.ns)var f=j(b.ns);return(c[g(a)]||[]).filter(function(a){return a&&(!b.e||a.e==b.e)&&(!b.ns||f.test(a.ns))&&(!d||g(a.fn)===g(d))&&(!e||a.sel==e)})}function i(a){var b=(""+a).split(".");return{e:b[0],ns:b.slice(1).sort().join(" ")}}function j(a){return new RegExp("(?:^| )"+a.replace(" "," .* ?")+"(?: |$)")}function k(b,c,d){a.type(b)!="string"?a.each(b,d):b.split(/\s/).forEach(function(a){d(a,c)})}function l(a,b){return a.del&&(a.e=="focus"||a.e=="blur")||!!b}function m(a){return f[a]||a}function n(b,d,e,h,j,n){var o=g(b),p=c[o]||(c[o]=[]);k(d,e,function(c,d){var e=i(c);e.fn=d,e.sel=h,e.e in f&&(d=function(b){var c=b.relatedTarget;if(!c||c!==this&&!a.contains(this,c))return e.fn.apply(this,arguments)}),e.del=j&&j(d,c);var g=e.del||d;e.proxy=function(a){var c=g.apply(b,[a].concat(a.data));return c===!1&&(a.preventDefault(),a.stopPropagation()),c},e.i=p.length,p.push(e),b.addEventListener(m(e.e),e.proxy,l(e,n))})}function o(a,b,d,e,f){var i=g(a);k(b||"",d,function(b,d){h(a,b,d,e).forEach(function(b){delete c[i][b.i],a.removeEventListener(m(b.e),b.proxy,l(b,f))})})}function t(b){var c,d={originalEvent:b};for(c in b)!r.test(c)&&b[c]!==undefined&&(d[c]=b[c]);return a.each(s,function(a,c){d[a]=function(){return this[c]=p,b[a].apply(b,arguments)},d[c]=q}),d}function u(a){if(!("defaultPrevented"in a)){a.defaultPrevented=!1;var b=a.preventDefault;a.preventDefault=function(){this.defaultPrevented=!0,b.call(this)}}}var b=a.zepto.qsa,c={},d=1,e={},f={mouseenter:"mouseover",mouseleave:"mouseout"};e.click=e.mousedown=e.mouseup=e.mousemove="MouseEvents",a.event={add:n,remove:o},a.proxy=function(b,c){if(a.isFunction(b)){var d=function(){return b.apply(c,arguments)};return d._zid=g(b),d}if(typeof c=="string")return a.proxy(b[c],b);throw new TypeError("expected function")},a.fn.bind=function(a,b){return this.each(function(){n(this,a,b)})},a.fn.unbind=function(a,b){return this.each(function(){o(this,a,b)})},a.fn.one=function(a,b){return this.each(function(c,d){n(this,a,b,null,function(a,b){return function(){var c=a.apply(d,arguments);return o(d,b,a),c}})})};var p=function(){return!0},q=function(){return!1},r=/^([A-Z]|layer[XY]$)/,s={preventDefault:"isDefaultPrevented",stopImmediatePropagation:"isImmediatePropagationStopped",stopPropagation:"isPropagationStopped"};a.fn.delegate=function(b,c,d){return this.each(function(e,f){n(f,c,d,b,function(c){return function(d){var e,g=a(d.target).closest(b,f).get(0);if(g)return e=a.extend(t(d),{currentTarget:g,liveFired:f}),c.apply(g,[e].concat([].slice.call(arguments,1)))}})})},a.fn.undelegate=function(a,b,c){return this.each(function(){o(this,b,c,a)})},a.fn.live=function(b,c){return a(document.body).delegate(this.selector,b,c),this},a.fn.die=function(b,c){return a(document.body).undelegate(this.selector,b,c),this},a.fn.on=function(b,c,d){return!c||a.isFunction(c)?this.bind(b,c||d):this.delegate(c,b,d)},a.fn.off=function(b,c,d){return!c||a.isFunction(c)?this.unbind(b,c||d):this.undelegate(c,b,d)},a.fn.trigger=function(b,c){if(typeof b=="string"||a.isPlainObject(b))b=a.Event(b);return u(b),b.data=c,this.each(function(){"dispatchEvent"in this&&this.dispatchEvent(b)})},a.fn.triggerHandler=function(b,c){var d,e;return this.each(function(f,g){d=t(typeof b=="string"?a.Event(b):b),d.data=c,d.target=g,a.each(h(g,b.type||b),function(a,b){e=b.proxy(d);if(d.isImmediatePropagationStopped())return!1})}),e},"focusin focusout load resize scroll unload click dblclick mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave change select keydown keypress keyup error".split(" ").forEach(function(b){a.fn[b]=function(a){return a?this.bind(b,a):this.trigger(b)}}),["focus","blur"].forEach(function(b){a.fn[b]=function(a){return a?this.bind(b,a):this.each(function(){try{this[b]()}catch(a){}}),this}}),a.Event=function(a,b){typeof a!="string"&&(b=a,a=b.type);var c=document.createEvent(e[a]||"Events"),d=!0;if(b)for(var f in b)f=="bubbles"?d=!!b[f]:c[f]=b[f];return c.initEvent(a,d,!0,null,null,null,null,null,null,null,null,null,null,null,null),c.isDefaultPrevented=function(){return this.defaultPrevented},c}}(Zepto),function(a){function h(a){return"tagName"in a?a:a.parentNode}function i(a,b,c,d){var e=Math.abs(a-b),f=Math.abs(c-d);return e>=f?a-b>0?"Left":"Right":c-d>0?"Up":"Down"}function j(){g=null,b.last&&(b.el.trigger("longTap"),b={})}function k(){g&&clearTimeout(g),g=null}function l(){c&&clearTimeout(c),d&&clearTimeout(d),e&&clearTimeout(e),g&&clearTimeout(g),c=d=e=g=null,b={}}var b={},c,d,e,f=750,g;a(document).ready(function(){var m,n;a(document.body).bind("touchstart",function(d){m=Date.now(),n=m-(b.last||m),b.el=a(h(d.touches[0].target)),c&&clearTimeout(c),b.x1=d.touches[0].pageX,b.y1=d.touches[0].pageY,n>0&&n<=250&&(b.isDoubleTap=!0),b.last=m,g=setTimeout(j,f)}).bind("touchmove",function(a){k(),b.x2=a.touches[0].pageX,b.y2=a.touches[0].pageY,Math.abs(b.x1-b.x2)>10&&a.preventDefault()}).bind("touchend",function(f){k(),b.x2&&Math.abs(b.x1-b.x2)>30||b.y2&&Math.abs(b.y1-b.y2)>30?e=setTimeout(function(){b.el.trigger("swipe"),b.el.trigger("swipe"+i(b.x1,b.x2,b.y1,b.y2)),b={}},0):"last"in b&&(d=setTimeout(function(){var d=a.Event("tap");d.cancelTouch=l,b.el.trigger(d),b.isDoubleTap?(b.el.trigger("doubleTap"),b={}):c=setTimeout(function(){c=null,b.el.trigger("singleTap"),b={}},250)},0))}).bind("touchcancel",l),a(window).bind("scroll",l)}),["swipe","swipeLeft","swipeRight","swipeUp","swipeDown","doubleTap","tap","singleTap","longTap"].forEach(function(b){a.fn[b]=function(a){return this.bind(b,a)}})}(Zepto)</script>
+        <script type="text/javascript">(function(t){
+
+  // Fallback if touch is not supported.
+  if (!('ontouchstart' in window)) {
+    $(document).delegate('body', 'click', function(e) {
+      $(e.target).trigger('tap');
+    });
+  }
+
+  if ( !("util" in t) ) t.util = {};
+
+  // Select a random item from an array.
+  t.util.pickRandom = function(array) {
+    return array[ Math.floor(Math.random() * array.length) ];
+  };
+
+// This is a kludge, but it works for now.
+var ArrayWalker = function(array) {
+  this.array = array;
+  this.head = 0;
+  this.body = 1;
+  this.tail = 2;
+  this.len = array.length;
+};
+ArrayWalker.prototype = {
+  hasNext: function() {
+    var len = this.len, tail = this.tail, body = this.body, head = this.head;
+    if (tail < len - 1 ) {
+      this.tail++;
+    } else if (body < len - 2) {
+      this.body++;
+      this.tail = this.body + 1 ;
+    } else if (head < len - 3) {
+      this.head++;
+      this.body = this.head + 1;
+      this.tail = this.body + 1;
+    }
+    if (this.tail >= len - 1
+      && this.body >= len - 2
+      && this.head >= len - 3) {
+      return false;
+    } 
+    return true;
+  }
+  , next: function() {
+    var array = this.array, tail = this.tail, body = this.body, head = this.head;
+    return [array[head], array[body], array[tail]];
+  }
+};
+var testAll = function(array, fn) {
+  var walker = new ArrayWalker(array);
+  do {
+    if (fn(walker.next())) {
+      return true;
+    }
+  } while(walker.hasNext())
+  return false;
+};
+
+  t.util.testAll = testAll;
+
+})(this);
+
+</script>
+        <script type="text/javascript">(function(t, util) {
+
+  var formatTime = function(date) {
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    return [
+      (hour % 12 ) || 12
+      , ":"
+      , (min < 10) ? "0" + min : min
+      , ""
+      , (hour < 12) ? "am" : "pm"
+    ].join('');
+  };
+
+  var standardMessages = [
+    "Nice work!"
+  , "You amaze me."
+  , "Your mother would be so proud."
+  , "I bet you can do better, though."
+  , "Woot!"
+  , "You're so fancy."
+  , "Brilliant!"
+  , "Fun! Oh, thank you for playing this game with me."
+  , "You rock like a brick!"
+  , "Bam."
+  , "You. Are. Breathtaking."
+  , "Oh, I love you!"
+  , "Good work! Hey, I'm thankful for you."
+  , "In related news: you are very beautiful."
+  , "And looked great doing it!"
+  , "We should play this more often."
+  , "I'm proud of you."
+  , "But mostly I'm just impressed with your hair right now."
+  ];
+
+  var messageGenerator = function(count, time) {
+    var messages = standardMessages.slice();
+    var now = new Date();
+
+    if (time < 10) {
+      messages.push("That's faster than Usain Bolt's 100 metre sprint!");
+    }
+    if (time < count) {
+      messages.push("That's more than one match per second!");
+      messages.push("That's insane!");
+      messages.push("Do you play this all the time?!");
+    }
+    if (time < (count * 2)) {
+      messages.push("That's better than <em>my</em> personal best!");
+      messages.push("You could do this professionally!");
+      messages.push("You might be the fastest person I know!");
+      messages.push("That's astounding!");
+      messages.push("I adore you.");
+      messages.push("Yeah, you are definitely better at this than me.");
+      messages.push("Seriously, I love you so much!");
+      messages.push("Also, I'm a little bit in love with you.");
+    }
+    if (time < (count * 3)) {
+      messages.push("You're fantastic!");
+      messages.push("You are freaky fast.");
+      messages.push("Seriously, I'm so impressed!");
+      messages.push("Wow. I barely have words.");
+      messages.push("Are you this good at everything you do?");
+    }
+    if (time < (count * 4)) {
+      messages.push("Damn, you're fast!");
+      messages.push("Oh, you are a wonder!");
+      messages.push("Not bad. Not bad at all.");
+      messages.push("Not too shabby!");
+    }
+    if (now.getHours() > 23 || now.getHours() < 5) {
+      messages.push("It's alright if you need to sleep, though; I understand.");
+    }
+    messages.push("Not bad for " + formatTime(now) +".");
+    if (time == 18) {
+      return "Never stop playing these beautiful love games.";
+    }
+    return util.pickRandom(messages);
+  };
+
+  t.messageGenerator = messageGenerator;
+
+})(this, this.util);
+
+</script>
+        <script type="text/javascript">// This is the main library for the match game.
+;(function($, util){
+
+  var traits = {
+    colors : ["orange", "purple", "green"],
+    shades : ["solid", "outlined", "semi-solid"],
+    shapes : ["circle", "triangle", "square"]
+  };
+
+  var validate = function(traits, tiles) {
+    for (var trait in traits) {
+      var options = traits[trait];
+      var values = [];
+      for (var i = 0, mx = tiles.length; i < mx; i++) {
+        var tile = tiles[i];
+        var tileTrait = tile.getTrait(trait, traits);
+        if (values.indexOf(tileTrait) === -1) {
+          values[values.length] = tileTrait;
+        }
+      }
+      if (values.length !== 1 && values.length !== tiles.length) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  var validateMatch = function(tiles) {
+    return validate(traits, tiles);
+  };
+
+  /**
+   * 
+   */
+  var DomTile = function(el) {
+    var tile;
+    if (!(this instanceof DomTile))
+      tile = new DomTile(el);
+    else {
+      tile = this;
+      tile.element = el;
+    }
+    return tile;
+  };
+
+  DomTile.prototype.getTrait = function(key, traits) {
+    var options = traits[key]
+        , item = $(this.element);
+        
+    for (var i = 0, mx = options.length; i < mx; i++) {
+      if ( item.hasClass(options[i]) )
+        return options[i];
+    }
+    // Not found.
+    //console.log("Trait not found!");
+    return "[unknown]";
+  };
+
+  var DomTile_isMatch = function(elements) {
+    var tiles = $.map(elements, DomTile)
+      , valid = validateMatch(tiles)
+    return valid;
+  };
+
+  var clickHandler = function(){
+    var item = $(this).find('.item');
+    item.toggleClass('selected');
+    
+    var selection = item.closest('.items').find('.selected');
+    if (selection.length < 3) {
+      return;
+    } else if (selection.length === 3) {
+      if ( DomTile_isMatch(selection) ) {
+        notify("You found a match!");
+        selection.removeClass('selected').addClass('claimed');
+        if (incrementMatches()) {
+          window.setTimeout(function(){
+            replaceItems(selection.parent());
+          }, 220); 
+        } else {
+          finished();
+        }
+      } else {
+        notify("Sorry, not a match.");
+        selection.removeClass('selected')
+      }
+    } else {
+      //console.log("This should not happen");
+    }
+    return;
+  };
+
+  var replaceItems = function(items) {
+    var replacements = [];
+    for (var i = 0, mx = items.length; i < mx; i++) {
+      var replacement = generateItem(traits);
+      replacements[replacements.length] = replacement;
+      items.eq(i).replaceWith(replacement);
+    }
+    if (!isMatchPossible()) {
+      // console.log("No matches found! Regenerating.");
+      replaceItems($(replacements));
+    }
+    return replacements;
+  }; 
+
+  // TODO: This should be a library method.
+  var isMatchPossible = function() {
+    // We need to pass items in instead of plucking them out.
+    var items = $('.board .item')
+      , possible = util.testAll(items, DomTile_isMatch);
+    return possible;
+  };
+
+  // TODO: This should be a library method.
+  var isUnique = function(item) {
+    // FIXME: We need to pass items in instead of plucking them out.
+    var items = $('.board .item').not(".claimed");
+    for (var i = 0, mx = items.length; i < mx; i++) {
+      var existing = items[i];
+      if (existing.className.indexOf(item.className) > -1) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // This should be a library method.
+  var generateItem = function(traits) {
+    var slot = document.createElement('li')
+      , item = document.createElement('span')
+      , shape = document.createElement('i');
+    slot.className = 'slot';
+    item.className = 'item';
+    slot.appendChild(item);
+    item.appendChild(shape);
+      
+    for (var trait in traits) {
+      var values = traits[trait]
+        , random = util.pickRandom(values);
+      item.className = item.className + " " + random;
+    }
+    
+    // Check if it's unique
+    if ( isUnique(item) ) {
+      return slot;
+    } else {
+      return generateItem(traits);
+    }
+  };
+
+  var timer = null;
+  var goal = null;
+
+  var setup = function(traits, size, parent, total) {
+    $(".board .slot").live('tap', clickHandler);
+    $(".board .timer").text('0');
+    $(".board .tally .found").text('0');
+    $(".board .tally .total").text(total);
+    $('.board .tally, .timer').css('visibility', 'visible');
+    
+    parent.empty();
+    while (size--) {
+      parent.append(generateItem(traits));
+    }
+    
+    if (!isMatchPossible()) {
+      replaceItems(parent.find('.slot'));
+    }
+
+    window.clearInterval(timer);
+    goal = total;
+
+    var seconds = 0;
+    timer = window.setInterval(function(){
+      $('.board .timer').text(++seconds);
+    }, 1000);
+
+  };
+
+  var incrementMatches = function() {
+    var tally = $(".board .tally .found");
+    var found = +tally.text() + 1;
+    window.setTimeout(function(){
+      tally.text(found);
+    }, 200);
+    if (found === goal) {
+      return false;
+    } else {
+      return true;
+    }
+  };
+
+  var stop = function() {
+    window.clearInterval(timer);
+    $('.board .slot').die('tap', clickHandler);
+    $('.board .notifications').text('');
+    $('.board .tally, .timer').css('visibility', 'hidden');
+    $('.board .notifications').removeClass('finale');
+  };
+
+  var finalMessage = function() {
+    var count = $(".board .tally .found").text()
+      , time = $('.board .timer').text()
+      , random = messageGenerator(count, time);
+    return [
+      util.pickRandom(["Woot!", "Wahoo!", ""])
+    , ' You found '
+    , count
+    , ' matches in <strong>'
+    , time
+    , ' seconds!</strong> '
+    , random
+    , '<br><br>'
+    , '<a class="button" href="#play-page">Again!</a>'
+    , '<br><br>'
+    , '<a class="button" href="#home-page">Home</a>'
+    ].join('');
+  };
+
+  var finished = function() {
+    stop();
+    window.setTimeout(function() {
+      notify(finalMessage());
+      $('.board .notifications').addClass('finale');
+    }, 200)
+  };
+
+  var notify = function(text) {
+    var messages = $('.board .notifications');
+    messages.html(text);
+  };
+
+  // Prevent touch-drag.
+  $("#play-page .board .items").on('touchmove', function(e) {
+    e.preventDefault();
+  });
+
+  window.match = {
+    newGame: function() {
+      stop();
+      setup( traits, 9, $('#play-page .items'), 10 );
+    }
+    , stop: stop
+  };
+
+})(Zepto, window.util);
+
+</script>
+        <script type="text/javascript">/**
+ * app.js
+ * ======
+ * This drives the match application. Here, event listeners are 
+ * registered and fired and magic happens.
+ */
+$ = Zepto || jQuery;
+
+/**
+ * utility functions
+ */
+
+/**
+ * `isIOS` — are we running on an ios device?
+ */
+function isIOS() {
+  return isIPhone() || isIPad();
+}
+
+/**
+ * `isIPhone` — how about an iPhone?
+ *
+ * A word of caution: This should only be used to assist in the instructions for
+ * pinning to the home screen. No assumptions about height/width/resolution/etc.
+ * should be made based on this.
+ */
+function isIPhone() {
+  var ua = window.navigator.userAgent;
+  return ua.indexOf('iPhone') > -1 && ua.indexOf('CriOS') === -1;
+}
+
+/**
+ * `isIPad` — is this being shown on an iPad?
+ *
+ * A word of caution: This should only be used to assist in the instructions for
+ * pinning to the home screen. No assumptions about height/width/resolution/etc.
+ * should be made based on this.
+ */
+function isIPad() {
+  var ua = window.navigator.userAgent;
+  return ua.indexOf('iPad') > -1 && ua.indexOf('CriOS') === -1;
+}
+
+/**
+ * `isStandalone` — is the app being launched as a standalone app?
+ */
+function isStandalone() {
+  return window.navigator.standalone
+}
+
+/**
+ * `$().activate` – Utility plugin to activate different ui elements.
+ */
+$.fn.activate = function() {
+  var active = 'active'
+    , selector = this.selector
+    , type = selector.lastIndexOf('-')
+    , active = (type >= 0) ? active + selector.slice(type) : active
+    , activated = $('.' + active);
+
+  activated.removeClass(active)
+  this.addClass(active)
+};
+
+/**
+ * Define routes for the application.
+ */
+var routes = {
+    /**
+     * `index` — the entry point to the application.
+     */
+    index: function() {
+      // Are we running in Mobile Safiri?
+      if (isIOS() && !isStandalone()) {
+        // If we aren't already pinned, show the installation instructions.
+        routes.install()
+        return
+      }
+      // Okay, go strait to the home screen.
+      routes.home()
+    } 
+    /**
+     * `install` — shows instructions to install the game
+     */
+    , install: function() {
+      $('#install-page').activate()
+
+      if (isIPhone()) {
+        // for iPhones, show the "install" message at the bottom.
+        $('body').addClass('iphone')
+      } else if (isIPad()) {
+        // for iPads, show the "install" messagae at the top.
+        $('body').addClass('ipad')
+      }
+
+      // for non-Mobile Safari browsers, create a link to open in Mobile safari?
+      // TODO: Provide fallback for non-ios.
+    }
+    /**
+     * `home` — shows the application name and options to play or learn to play.
+     */
+    , home: function() {
+      $('#home-page').activate()
+      match.stop()
+    }
+    /**
+     * `menu` — shows a menu of additional options/pages.
+     */
+    , menu: function() {
+      $('#app-menu').activate()
+    }
+    /**
+     * `play` — start a new (single-player) game.
+     */
+    , play: function() {
+      $('#play-page').activate()
+      match.newGame()
+    }
+    /** 
+     * `rules` — learn how to play the game
+     */
+    , rules: function() {
+      $('#rules-page').activate()
+    }
+};
+
+/**
+ * `init` — Initialize the application, setup 
+ */
+function init() {
+
+  $('[href="#home-page"]').live('tap', routes.home)
+  $('[href="#rules-page"]').live('tap', routes.rules)
+  $('[href="#play-page"]').live('tap', routes.play)
+
+  // Finally, initiate the index route.
+  routes.index();
+}
+
+init();
+
+</script>
+    </body>
+</html>

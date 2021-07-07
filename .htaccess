@@ -1,0 +1,14 @@
+AddDefaultCharset utf-8
+AddCharset utf-8 .html .css .js .xml .json .rss .appcache
+
+#Set caching on images
+<filesMatch "\.(ico|gif|jpg|png)$">
+  ExpiresActive On
+  ExpiresDefault "access plus 1 day"
+  Header append Cache-Control "public"
+</filesMatch>
+
+# Keep pagespeed's grubby hands off my icon.
+<IfModule pagespeed_module>
+  ModPagespeedDisallow "*/icon.png"
+</IfModule>
